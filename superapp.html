@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>SuperApp | Delivery Request</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.prod.website-files.com/5e8785b1f99d7c2b576740dd/css/gokada.webflow.6fb712cbf.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Transparent floating delivery form */
+    .delivery-form-section {
+      position: relative;
+      background: transparent;
+      padding: 80px 20px 60px;
+      text-align: center;
+      color: #fff;
+      z-index: 10;
+    }
+    .delivery-form-section h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .delivery-form-section p {
+      max-width: 600px;
+      margin: 0 auto 30px;
+      color: #e5e5e5;
+    }
+    form.delivery-form {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 30px;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(8px);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    form.delivery-form label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      color: #fff;
+      text-align: left;
+    }
+    form.delivery-form input,
+    form.delivery-form select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid #999;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+    }
+    form.delivery-form input::placeholder {
+      color: #ccc;
+    }
+    form.delivery-form select option {
+      background-color: #fff;
+      color: #000;
+    }
+    form.delivery-form button {
+      grid-column: 1 / -1;
+      margin-top: 20px;
+      padding: 14px 24px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      background: #0c63e7;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    form.delivery-form button:hover {
+      background: #0949b5;
+    }
+  </style>
+</head>
+
+<body class="body-dark">
+  <!-- HEADER -->
+  <header class="header">
+    <div class="w-container">
+      <div class="header-wrapper">
+        <a href="/" class="brand-wrapper w-nav-brand">
+          <img src="https://cdn.prod.website-files.com/5e8785b1f99d7c2b576740dd/60e8af113bb9b8511a979c75_gokada-logo-hor.svg" alt="SuperApp Logo" class="img-logo" />
+        </a>
+        <nav class="main-nav">
+          <a href="/" class="nav-link">Home</a>
+          <a href="/superapp" aria-current="page" class="nav-link w--current">SuperApp</a>
+          <a href="/business" class="nav-link">Business</a>
+          <a href="/about" class="nav-link">About</a>
+          <a href="/press" class="nav-link">Press</a>
+          <a href="/support" class="nav-link nav-link-accent">Login</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- DELIVERY FORM SECTION -->
+  <section class="delivery-form-section">
+    <div class="w-container">
+      <h2>Request a Delivery</h2>
+      <p>Fill out the form below and a driver will deliver your package quickly and safely.</p>
+
+      <form id="deliveryRequestForm" class="delivery-form" onsubmit="handleDeliverySubmit(event)">
+        <div>
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" name="fullName" placeholder="Enter full name" required />
+        </div>
+        <div>
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" name="phone" placeholder="e.g. 08012345678" required />
+        </div>
+        <div style="grid-column: 1 / -1;">
+          <label for="location">Delivery Location</label>
+          <input type="text" id="location" name="location" placeholder="Enter delivery address" required />
+        </div>
+        <div>
+          <label for="range">Delivery Range</label>
+          <select id="range" name="range" required>
+            <option value="">Select range</option>
+            <option value="1 Day">1 Day</option>
+            <option value="2 Days">2 Days</option>
+            <option value="3 Days">3 Days</option>
+          </select>
+        </div>
+        <div>
+          <label for="amount">Delivery Amount (₦)</label>
+          <select id="amount" name="amount" required>
+            <option value="">Select amount</option>
+            <option value="10000">₦10,000 (1 Day)</option>
+            <option value="10000">₦10,000 (2 Days)</option>
+            <option value="10000">₦10,000 (3 Days)</option>
+          </select>
+        </div>
+        <div style="grid-column: 1 / -1;">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="Enter email address" required />
+        </div>
+        <button type="submit">Submit Request</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- KEEP ALL ORIGINAL SECTIONS AND FOOTER -->
+  <section class="section">
+    <div class="w-container">
+      <h2>Who says you can’t have the best of both worlds?<br><br>Definitely not us.</h2>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="w-container">
+      <div class="footer-wrapper">
+        <a href="/" class="brand-wrapper w-nav-brand">
+          <img src="https://cdn.prod.website-files.com/5e8785b1f99d7c2b576740dd/60e8af113bb9b8511a979c75_gokada-logo-hor.svg" alt="SuperApp logo" class="img-logo" />
+        </a>
+        <div class="footer-bottom">
+          <div class="dark-footer-text-small">Copyright © <span class="hack-year"></span> SuperApp. All rights reserved.</div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Auto year update
+    document.querySelector('.hack-year').textContent = new Date().getFullYear();
+
+    // Submit handler
+    function handleDeliverySubmit(e) {
+      e.preventDefault();
+      alert("✅ Thanks for your order! Your delivery request has been received.");
+      document.getElementById('deliveryRequestForm').reset();
+    }
+  </script>
+</body>
+</html>

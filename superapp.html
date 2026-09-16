@@ -945,19 +945,7 @@
             return;
           }
         }
-        loaderText.textContent = 'Processing your payment…';
-        loader.classList.add('is-on');
-        setTimeout(function () {
-          loader.classList.remove('is-on');
-          furthest = 5;
-          document.getElementById('trackingId').textContent =
-            'SA-' + Math.random().toString(36).slice(2, 8).toUpperCase();
-          railItems.forEach(function (i) { i.classList.remove('is-current'); i.classList.add('is-done'); });
-          views.forEach(function (v) { v.classList.remove('is-active', 'back'); });
-          views[5].classList.add('is-active');
-          current = 5;
-          window.scrollTo({ top: document.querySelector('.delivery-form-section').offsetTop - 80, behavior: 'smooth' });
-        }, 1800);
+        window.location.href = 'payment.html';
       });
 
       document.getElementById('startOver').addEventListener('click', function () {

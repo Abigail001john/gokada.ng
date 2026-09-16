@@ -945,6 +945,10 @@
             return;
           }
         }
+        sessionStorage.setItem('gokadaCheckout', JSON.stringify({
+          order: order,
+          method: method
+        }));
         window.location.href = 'payment.html';
       });
 

@@ -83,6 +83,18 @@
                 <div class="flex justify-between gap-4"><span class="text-mutedText">Email receipt</span><span id="emailValue" class="text-right">Not provided</span></div>
             </div>
 
+            <div id="paymentDetails" class="mt-5 hidden rounded-xl border border-accentGold/40 bg-accentGold/10 p-4 text-sm">
+                <h2 class="font-bold text-white">Gokada payment details</h2>
+                <p class="mt-1 text-xs text-mutedText">Make your transfer using the details below. Use the reference as your payment narration.</p>
+                <div class="mt-4 grid gap-2 text-xs">
+                    <div class="flex justify-between gap-4"><span class="text-mutedText">Bank</span><strong>Kredi Money Mfb Ltd</strong></div>
+                    <div class="flex justify-between gap-4"><span class="text-mutedText">Account number</span><strong>1829604399</strong></div>
+                    <div class="flex justify-between gap-4"><span class="text-mutedText">Account name</span><strong>Raenest/John Ayodeji</strong></div>
+                    <div class="flex justify-between gap-4"><span class="text-mutedText">Amount</span><strong id="paymentAmount">N0</strong></div>
+                    <div class="flex justify-between gap-4"><span class="text-mutedText">Reference</span><strong id="paymentReference">GK-</strong></div>
+                </div>
+            </div>
+
             <button id="payButton" type="button" class="mt-6 w-full rounded-xl bg-gradient-gold py-3.5 text-xs font-black uppercase tracking-wider text-black shadow-lg transition-transform hover:scale-[1.01]">
                 Confirm Payment
             </button>
@@ -108,6 +120,7 @@
         document.getElementById('recipientPhoneValue').textContent = options['Recipient Phone'] || 'Not provided';
         document.getElementById('emailValue').textContent = sender['Email Address'] || 'Not provided';
         document.getElementById('totalLabel').textContent = formatNaira(amount);
+        document.getElementById('paymentAmount').textContent = formatNaira(amount);
         document.getElementById('paymentStatus').textContent = 'Payment method: ' + (checkout.method || 'Card') + '. Your delivery details are synced from Gokada SuperApp.';
         if (checkout.method === 'BizsecurePay') {
             document.getElementById('payButton').textContent = 'Confirm BizsecurePay Payment';
@@ -115,28 +128,18 @@
 
         function dispatchToBizsecurePay() {
             const reference = 'GK-' + Date.now().toString(36).toUpperCase();
-            const gatewayParams = new URLSearchParams({
-                link: 'Gokada-pays',
-                bank_name: 'Kredi Money Mfb Ltd',
-                account_number: '1829604399',
-                account_name: 'Raenest/John Ayodeji',
-                amount: amount.toFixed(2),
-                reference,
-                customer: sender['Full Name'] || '',
-                email: sender['Email Address'] || '',
-                phone: sender['Phone Number'] || '',
-                pickup: sender['Pickup Address'] || '',
-                delivery: sender['Delivery Location'] || '',
-                recipient: options.Recipient || ''
-            });
             sessionStorage.setItem('gokadaPayment', JSON.stringify({
                 amount,
                 reference,
                 email: sender['Email Address'] || '',
                 method: 'BizsecurePay',
-                status: 'Redirected to payment gateway'
+                status: 'Payment details displayed'
             }));
-            window.location.href = 'https://bizsecurepay.com.ng/?' + gatewayParams.toString();
+            document.getElementById('paymentReference').textContent = reference;
+            document.getElementById('paymentDetails').classList.remove('hidden');
+            document.getElementById('paymentStatus').textContent = 'Gokada payment details are ready. Complete the transfer using the reference above.';
+            document.getElementById('payButton').textContent = 'Payment Details Displayed';
+            document.getElementById('payButton').disabled = true;
         }
 
         document.getElementById('payButton').addEventListener('click', () => {

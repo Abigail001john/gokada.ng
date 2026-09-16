@@ -4,10 +4,24 @@
   <meta charset="utf-8" />
   <title>SuperApp | Delivery Request</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#17181a" />
   <link href="https://cdn.prod.website-files.com/5e8785b1f99d7c2b576740dd/css/gokada.webflow.6fb712cbf.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    /* Transparent floating delivery form */
+    /* ---------------------------------------------------------
+       Delivery flow — built on the existing site design language
+       (dark body, Inter, #0c63e7 accent, soft glass panels)
+       --------------------------------------------------------- */
+    :root {
+      --g-accent: #0c63e7;
+      --g-accent-dark: #0949b5;
+      --g-panel: rgba(0, 0, 0, 0.45);
+      --g-line: rgba(255, 255, 255, 0.14);
+      --g-muted: #a7adb8;
+      --g-soft: #e5e5e5;
+      --g-ok: #26c281;
+    }
+
     .delivery-form-section {
       position: relative;
       background: transparent;
@@ -15,28 +29,137 @@
       text-align: center;
       color: #fff;
       z-index: 10;
+      font-family: Inter, sans-serif;
     }
     .delivery-form-section h2 {
       font-size: 2rem;
       font-weight: 700;
       margin-bottom: 8px;
     }
-    .delivery-form-section p {
+    .delivery-form-section .section-intro {
       max-width: 600px;
-      margin: 0 auto 30px;
-      color: #e5e5e5;
+      margin: 0 auto 36px;
+      color: var(--g-soft);
     }
-    form.delivery-form {
-      max-width: 800px;
+
+    /* ---------- Layout: step rail + step panel ---------- */
+    .flow-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 28px;
+      max-width: 1040px;
       margin: 0 auto;
+      text-align: left;
+      align-items: start;
+    }
+
+    /* ---------- Step rail (reference image) ---------- */
+    .step-rail {
+      position: sticky;
+      top: 100px;
+      background: var(--g-panel);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--g-line);
+      border-radius: 16px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .step-rail-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--g-muted);
+      background: transparent;
+      border: 0;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      cursor: default;
+      transition: background .25s ease, color .25s ease;
+    }
+    .step-rail-item .tick {
+      opacity: 0;
+      transform: scale(.6);
+      transition: opacity .25s ease, transform .25s ease;
+      color: var(--g-ok);
+      flex: 0 0 auto;
+      line-height: 0;
+    }
+    .step-rail-item.is-done {
+      color: #fff;
+      cursor: pointer;
+    }
+    .step-rail-item.is-done .tick { opacity: 1; transform: scale(1); }
+    .step-rail-item.is-done:hover { background: rgba(255, 255, 255, 0.06); }
+    .step-rail-item.is-current {
+      color: #6ea8ff;
+      background: rgba(12, 99, 231, 0.16);
+      box-shadow: inset 2px 0 0 var(--g-accent);
+    }
+
+    /* ---------- Step panel ---------- */
+    .step-panel {
+      position: relative;
+      min-height: 420px;
+    }
+    .step-view { display: none; }
+    .step-view.is-active {
+      display: block;
+      animation: stepIn .38s cubic-bezier(.22, .61, .36, 1) both;
+    }
+    .step-view.is-active.back { animation-name: stepInBack; }
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateX(22px); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes stepInBack {
+      from { opacity: 0; transform: translateX(-22px); }
+      to   { opacity: 1; transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .step-view.is-active { animation: none; }
+    }
+
+    .step-eyebrow {
+      font-size: 0.78rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--g-muted);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .step-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 6px;
+    }
+    .step-sub {
+      color: var(--g-soft);
+      margin: 0 0 22px;
+      font-size: 0.95rem;
+    }
+
+    /* ---------- Forms (same look as the original form) ---------- */
+    form.delivery-form {
+      margin: 0;
       padding: 30px;
       border-radius: 16px;
-      background: rgba(0, 0, 0, 0.45);
+      background: var(--g-panel);
       backdrop-filter: blur(8px);
+      border: 1px solid var(--g-line);
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 16px;
     }
+    form.delivery-form .full { grid-column: 1 / -1; }
     form.delivery-form label {
       display: block;
       font-weight: 600;
@@ -46,7 +169,8 @@
       text-align: left;
     }
     form.delivery-form input,
-    form.delivery-form select {
+    form.delivery-form select,
+    form.delivery-form textarea {
       width: 100%;
       padding: 12px 14px;
       border-radius: 8px;
@@ -54,32 +178,170 @@
       background: rgba(255, 255, 255, 0.15);
       color: #fff;
       outline: none;
+      font-family: inherit;
+      font-size: 0.95rem;
       appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
+      transition: border-color .2s ease, background .2s ease;
     }
-    form.delivery-form input::placeholder {
-      color: #ccc;
+    form.delivery-form textarea { min-height: 96px; resize: vertical; }
+    form.delivery-form input:focus,
+    form.delivery-form select:focus,
+    form.delivery-form textarea:focus {
+      border-color: var(--g-accent);
+      background: rgba(255, 255, 255, 0.2);
     }
-    form.delivery-form select option {
-      background-color: #fff;
-      color: #000;
-    }
-    form.delivery-form button {
+    form.delivery-form input::placeholder,
+    form.delivery-form textarea::placeholder { color: #ccc; }
+    form.delivery-form select option { background-color: #fff; color: #000; }
+
+    .field-hint { font-size: .8rem; color: var(--g-muted); margin-top: 6px; }
+
+    /* ---------- Buttons ---------- */
+    .form-actions {
       grid-column: 1 / -1;
-      margin-top: 20px;
-      padding: 14px 24px;
+      margin-top: 14px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn-next,
+    .btn-back {
+      padding: 14px 26px;
       font-size: 1rem;
       font-weight: 700;
-      color: #fff;
-      background: #0c63e7;
-      border: none;
+      font-family: inherit;
       border-radius: 8px;
       cursor: pointer;
-      transition: 0.3s;
+      transition: .3s;
+      border: none;
     }
-    form.delivery-form button:hover {
-      background: #0949b5;
+    .btn-next {
+      color: #fff;
+      background: var(--g-accent);
+      flex: 1 1 200px;
+    }
+    .btn-next:hover { background: var(--g-accent-dark); }
+    .btn-back {
+      color: #fff;
+      background: transparent;
+      border: 1px solid var(--g-line);
+    }
+    .btn-back:hover { background: rgba(255, 255, 255, 0.08); }
+
+    /* ---------- Choice cards (delivery options / payment) ---------- */
+    .choice-grid { grid-column: 1 / -1; display: grid; gap: 12px; }
+    .choice {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid var(--g-line);
+      background: rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      transition: border-color .2s ease, background .2s ease;
+    }
+    .choice:hover { background: rgba(255, 255, 255, 0.09); }
+    .choice input { width: auto; margin-top: 3px; accent-color: var(--g-accent); }
+    .choice.is-selected {
+      border-color: var(--g-accent);
+      background: rgba(12, 99, 231, 0.14);
+    }
+    .choice-title { font-weight: 700; color: #fff; display: flex; justify-content: space-between; gap: 10px; }
+    .choice-desc { font-size: .85rem; color: var(--g-muted); margin-top: 3px; }
+
+    /* ---------- Summary ---------- */
+    .summary-card {
+      padding: 30px;
+      border-radius: 16px;
+      background: var(--g-panel);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--g-line);
+    }
+    .summary-block + .summary-block { margin-top: 22px; }
+    .summary-block-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--g-line);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+    .summary-block-head h4 { margin: 0; font-size: .95rem; color: #fff; font-weight: 700; }
+    .summary-edit {
+      background: none; border: 0; color: #6ea8ff; font-weight: 600;
+      font-size: .85rem; cursor: pointer; font-family: inherit; padding: 0;
+    }
+    .summary-edit:hover { text-decoration: underline; }
+    .summary-row { display: flex; justify-content: space-between; gap: 16px; padding: 5px 0; font-size: .9rem; }
+    .summary-row dt { color: var(--g-muted); margin: 0; }
+    .summary-row dd { color: #fff; margin: 0; text-align: right; font-weight: 500; word-break: break-word; }
+    dl { margin: 0; }
+    .total-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--g-line);
+    }
+    .total-row span { color: var(--g-soft); font-weight: 600; }
+    .total-row strong { font-size: 1.5rem; color: #fff; }
+
+    /* ---------- Loading overlay ---------- */
+    .flow-loader {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 11, 13, 0.82);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 18px;
+      z-index: 9999;
+      color: #fff;
+      font-family: Inter, sans-serif;
+    }
+    .flow-loader.is-on { display: flex; animation: fadeIn .25s ease both; }
+    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+    .spinner {
+      width: 54px; height: 54px; border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.18);
+      border-top-color: var(--g-accent);
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg) } }
+    .flow-loader p { margin: 0; color: var(--g-soft); font-size: .95rem; }
+
+    /* ---------- Success ---------- */
+    .success-card { text-align: center; padding: 48px 30px; }
+    .success-mark {
+      width: 66px; height: 66px; border-radius: 50%;
+      background: rgba(38, 194, 129, 0.16);
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 18px; color: var(--g-ok);
+    }
+    .tracking-id {
+      display: inline-block; margin-top: 14px; padding: 10px 18px;
+      border-radius: 8px; border: 1px dashed var(--g-line);
+      font-weight: 700; letter-spacing: .08em; color: #fff;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media screen and (max-width: 860px) {
+      .flow-layout { grid-template-columns: 1fr; gap: 18px; }
+      .step-rail {
+        position: static;
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 6px;
+        padding: 8px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .step-rail-item { white-space: nowrap; padding: 10px 14px; font-size: .85rem; width: auto; }
+      .step-rail-item.is-current { box-shadow: inset 0 -2px 0 var(--g-accent); }
+      form.delivery-form, .summary-card { padding: 22px 18px; }
+      .delivery-form-section { padding: 60px 16px 40px; }
     }
   </style>
 </head>
@@ -89,66 +351,353 @@
   <header class="header">
     <div class="w-container">
       <div class="header-wrapper">
-        <a href="/" class="brand-wrapper w-nav-brand">
+          <a href="index.html" class="brand-wrapper w-nav-brand">
           <img src="https://cdn.prod.website-files.com/5e8785b1f99d7c2b576740dd/60e8af113bb9b8511a979c75_gokada-logo-hor.svg" alt="SuperApp Logo" class="img-logo" />
         </a>
         <nav class="main-nav">
-          <a href="/" class="nav-link">Home</a>
-          <a href="/superapp" aria-current="page" class="nav-link w--current">SuperApp</a>
-          <a href="/business" class="nav-link">Business</a>
-          <a href="/about" class="nav-link">About</a>
-          <a href="/press" class="nav-link">Press</a>
-          <a href="/support" class="nav-link nav-link-accent">Login</a>
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="superapp.html" aria-current="page" class="nav-link w--current">SuperApp</a>
+          <a href="business.html" class="nav-link">Business</a>
+          <a href="www.gokada.ng/about.html" class="nav-link">About</a>
+          <a href="www.gokada.ng/press.html" class="nav-link">Press</a>
+          <a href="support.html" class="nav-link nav-link-accent">Login</a>
         </nav>
       </div>
     </div>
   </header>
 
-  <!-- DELIVERY FORM SECTION -->
+  <!-- DELIVERY FLOW -->
   <section class="delivery-form-section">
     <div class="w-container">
       <h2>Request a Delivery</h2>
-      <p>Fill out the form below and a driver will deliver your package quickly and safely.</p>
+      <p class="section-intro">Fill out the form below and a driver will deliver your package quickly and safely.</p>
 
-      <form id="deliveryRequestForm" class="delivery-form" onsubmit="handleDeliverySubmit(event)">
-        <div>
-          <label for="fullName">Full Name</label>
-          <input type="text" id="fullName" name="fullName" placeholder="Enter full name" required />
+      <div class="flow-layout">
+
+        <!-- STEP RAIL -->
+        <nav class="step-rail" id="stepRail" aria-label="Delivery request steps">
+          <button type="button" class="step-rail-item" data-rail="0">
+            <span>Sender Details</span>
+            <span class="tick" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </span>
+          </button>
+          <button type="button" class="step-rail-item" data-rail="1">
+            <span>Item Description</span>
+            <span class="tick" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </span>
+          </button>
+          <button type="button" class="step-rail-item" data-rail="2">
+            <span>Delivery options</span>
+            <span class="tick" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </span>
+          </button>
+          <button type="button" class="step-rail-item" data-rail="3">
+            <span>Order Summary</span>
+            <span class="tick" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </span>
+          </button>
+          <button type="button" class="step-rail-item" data-rail="4">
+            <span>Payment</span>
+            <span class="tick" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </span>
+          </button>
+        </nav>
+
+        <!-- STEP PANEL -->
+        <div class="step-panel">
+
+          <!-- STEP 0 — SENDER DETAILS -->
+          <div class="step-view is-active" data-step="0">
+            <div class="step-eyebrow">Step 1 of 5</div>
+            <h3 class="step-title">Sender Details</h3>
+            <p class="step-sub">Tell us who is sending the package and where it is going.</p>
+
+            <form id="senderForm" class="delivery-form" novalidate>
+              <div>
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" name="fullName" placeholder="Enter full name" required />
+              </div>
+              <div>
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="e.g. 08012345678" required />
+              </div>
+              <div class="full">
+                <label for="pickup">Pickup Address</label>
+                <input type="text" id="pickup" name="pickup" placeholder="Where should the driver pick up?" required />
+              </div>
+              <div class="full">
+                <label for="location">Delivery Location</label>
+                <input type="text" id="location" name="location" placeholder="Enter delivery address" required />
+              </div>
+              <div class="full">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter email address" required />
+                <div class="field-hint">Your receipt and tracking link are sent here.</div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-next">Submit Request</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- STEP 1 — ITEM DESCRIPTION -->
+          <div class="step-view" data-step="1">
+            <div class="step-eyebrow">Step 2 of 5</div>
+            <h3 class="step-title">Item Description</h3>
+            <p class="step-sub">Describe what you are sending so we can match it with the right rider.</p>
+
+            <form id="itemForm" class="delivery-form" novalidate>
+              <div>
+                <label for="itemCategory">Item Category</label>
+                <select id="itemCategory" name="itemCategory" required>
+                  <option value="">Select category</option>
+                  <option>Documents &amp; Envelopes</option>
+                  <option>Food &amp; Groceries</option>
+                  <option>Clothing &amp; Fashion</option>
+                  <option>Electronics &amp; Gadgets</option>
+                  <option>Health &amp; Pharmacy</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label for="itemName">Item Name</label>
+                <input type="text" id="itemName" name="itemName" placeholder="e.g. Laptop bag" required />
+              </div>
+              <div>
+                <label for="itemWeight">Approx. Weight</label>
+                <select id="itemWeight" name="itemWeight" required>
+                  <option value="">Select weight</option>
+                  <option value="0-2kg">Under 2kg</option>
+                  <option value="2-5kg">2kg – 5kg</option>
+                  <option value="5-10kg">5kg – 10kg</option>
+                  <option value="10kg+">Above 10kg</option>
+                </select>
+              </div>
+              <div>
+                <label for="itemQty">Quantity</label>
+                <input type="number" id="itemQty" name="itemQty" min="1" value="1" required />
+              </div>
+              <div class="full">
+                <label for="itemValue">Declared Value (₦)</label>
+                <input type="number" id="itemValue" name="itemValue" min="0" placeholder="e.g. 50000" required />
+                <div class="field-hint">Used for insurance cover if you add it in the next step.</div>
+              </div>
+              <div class="full">
+                <label for="itemNotes">Handling Notes <span style="font-weight:400;color:#a7adb8">(optional)</span></label>
+                <textarea id="itemNotes" name="itemNotes" placeholder="Fragile, keep upright, call before pickup…"></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn-back" data-back>Back</button>
+                <button type="submit" class="btn-next">Continue to Delivery Options</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- STEP 2 — DELIVERY OPTIONS -->
+          <div class="step-view" data-step="2">
+            <div class="step-eyebrow">Step 3 of 5</div>
+            <h3 class="step-title">Delivery options</h3>
+            <p class="step-sub">Choose how fast you need it there and when the rider should pick it up.</p>
+
+            <form id="optionsForm" class="delivery-form" novalidate>
+              <div class="choice-grid">
+                <label class="choice">
+                  <input type="radio" name="range" value="1 Day" data-price="10000" required />
+                  <span style="flex:1">
+                    <span class="choice-title"><span>Express — 1 Day</span><span>₦10,000</span></span>
+                    <span class="choice-desc">Same-day dispatch, delivered within 24 hours.</span>
+                  </span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="range" value="2 Days" data-price="7500" />
+                  <span style="flex:1">
+                    <span class="choice-title"><span>Standard — 2 Days</span><span>₦7,500</span></span>
+                    <span class="choice-desc">Our most popular option for everyday parcels.</span>
+                  </span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="range" value="3 Days" data-price="5000" />
+                  <span style="flex:1">
+                    <span class="choice-title"><span>Economy — 3 Days</span><span>₦5,000</span></span>
+                    <span class="choice-desc">Best value when the delivery is not urgent.</span>
+                  </span>
+                </label>
+              </div>
+
+              <div>
+                <label for="pickupDate">Preferred Pickup Date</label>
+                <input type="date" id="pickupDate" name="pickupDate" required />
+              </div>
+              <div>
+                <label for="pickupWindow">Pickup Time Window</label>
+                <select id="pickupWindow" name="pickupWindow" required>
+                  <option value="">Select a time window</option>
+                  <option>Morning (8am – 12pm)</option>
+                  <option>Afternoon (12pm – 4pm)</option>
+                  <option>Evening (4pm – 8pm)</option>
+                </select>
+              </div>
+              <div class="full">
+                <label for="recipientName">Recipient Name</label>
+                <input type="text" id="recipientName" name="recipientName" placeholder="Who receives the package?" required />
+              </div>
+              <div class="full">
+                <label for="recipientPhone">Recipient Phone Number</label>
+                <input type="tel" id="recipientPhone" name="recipientPhone" placeholder="e.g. 08012345678" required />
+              </div>
+              <div class="choice-grid">
+                <label class="choice">
+                  <input type="checkbox" id="insurance" name="insurance" />
+                  <span style="flex:1">
+                    <span class="choice-title"><span>Add parcel insurance</span><span id="insurancePrice">₦0</span></span>
+                    <span class="choice-desc">Covers 2% of your declared value against loss or damage.</span>
+                  </span>
+                </label>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn-back" data-back>Back</button>
+                <button type="submit" class="btn-next">Continue to Order Summary</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- STEP 3 — ORDER SUMMARY -->
+          <div class="step-view" data-step="3">
+            <div class="step-eyebrow">Step 4 of 5</div>
+            <h3 class="step-title">Order Summary</h3>
+            <p class="step-sub">Review everything before you pay. You can edit any section.</p>
+
+            <div class="summary-card">
+              <div class="summary-block">
+                <div class="summary-block-head">
+                  <h4>Sender Details</h4>
+                  <button type="button" class="summary-edit" data-goto="0">Edit</button>
+                </div>
+                <dl id="summarySender"></dl>
+              </div>
+
+              <div class="summary-block">
+                <div class="summary-block-head">
+                  <h4>Item Description</h4>
+                  <button type="button" class="summary-edit" data-goto="1">Edit</button>
+                </div>
+                <dl id="summaryItem"></dl>
+              </div>
+
+              <div class="summary-block">
+                <div class="summary-block-head">
+                  <h4>Delivery options</h4>
+                  <button type="button" class="summary-edit" data-goto="2">Edit</button>
+                </div>
+                <dl id="summaryOptions"></dl>
+              </div>
+
+              <div class="summary-block">
+                <div class="summary-block-head">
+                  <h4>Charges</h4>
+                </div>
+                <dl id="summaryCharges"></dl>
+                <div class="total-row">
+                  <span>Total to pay</span>
+                  <strong id="summaryTotal">₦0</strong>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn-back" data-back>Back</button>
+                <button type="button" class="btn-next" id="toPayment">Proceed to Payment</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 4 — PAYMENT -->
+          <div class="step-view" data-step="4">
+            <div class="step-eyebrow">Step 5 of 5</div>
+            <h3 class="step-title">Payment</h3>
+            <p class="step-sub">Pay <strong id="payAmount">₦0</strong> to confirm your delivery request.</p>
+
+            <form id="paymentForm" class="delivery-form" novalidate>
+              <div class="choice-grid">
+                <label class="choice">
+                  <input type="radio" name="payMethod" value="Card" checked required />
+                  <span style="flex:1">
+                    <span class="choice-title"><span>Debit / Credit Card</span></span>
+                    <span class="choice-desc">Verve, Mastercard and Visa accepted.</span>
+                  </span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="payMethod" value="Bank Transfer" />
+                  <span style="flex:1">
+                    <span class="choice-title"><span>Bank Transfer</span></span>
+                    <span class="choice-desc">We generate a one-time account number for you.</span>
+                  </span>
+                </label>
+                <label class="choice">
+                  <input type="radio" name="payMethod" value="Pay on Pickup" />
+                  <span style="flex:1">
+                    <span class="choice-title"><span>Pay on Pickup</span></span>
+                    <span class="choice-desc">Settle with the rider when the parcel is collected.</span>
+                  </span>
+                </label>
+              </div>
+
+              <div id="cardFields" style="display:contents">
+                <div class="full">
+                  <label for="cardName">Name on Card</label>
+                  <input type="text" id="cardName" placeholder="Enter name on card" />
+                </div>
+                <div class="full">
+                  <label for="cardNumber">Card Number</label>
+                  <input type="text" id="cardNumber" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000" />
+                </div>
+                <div>
+                  <label for="cardExpiry">Expiry Date</label>
+                  <input type="text" id="cardExpiry" maxlength="5" placeholder="MM/YY" />
+                </div>
+                <div>
+                  <label for="cardCvv">CVV</label>
+                  <input type="text" id="cardCvv" inputmode="numeric" maxlength="4" placeholder="123" />
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn-back" data-back>Back</button>
+                <button type="submit" class="btn-next" id="payButton">Pay ₦0</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- DONE -->
+          <div class="step-view" data-step="5">
+            <div class="summary-card success-card">
+              <div class="success-mark">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <h3 class="step-title">Your delivery is confirmed</h3>
+              <p class="step-sub" style="margin-bottom:0">Thanks for your order. A rider will be assigned shortly and we have emailed your receipt and tracking link.</p>
+              <div class="tracking-id" id="trackingId">—</div>
+              <div class="form-actions" style="justify-content:center">
+                <button type="button" class="btn-next" id="startOver" style="flex:0 0 auto">Request another delivery</button>
+              </div>
+            </div>
+          </div>
+
         </div>
-        <div>
-          <label for="phone">Phone Number</label>
-          <input type="tel" id="phone" name="phone" placeholder="e.g. 08012345678" required />
-        </div>
-        <div style="grid-column: 1 / -1;">
-          <label for="location">Delivery Location</label>
-          <input type="text" id="location" name="location" placeholder="Enter delivery address" required />
-        </div>
-        <div>
-          <label for="range">Delivery Range</label>
-          <select id="range" name="range" required>
-            <option value="">Select range</option>
-            <option value="1 Day">1 Day</option>
-            <option value="2 Days">2 Days</option>
-            <option value="3 Days">3 Days</option>
-          </select>
-        </div>
-        <div>
-          <label for="amount">Delivery Amount (₦)</label>
-          <select id="amount" name="amount" required>
-            <option value="">Select amount</option>
-            <option value="10000">₦10,000 (1 Day)</option>
-            <option value="10000">₦10,000 (2 Days)</option>
-            <option value="10000">₦10,000 (3 Days)</option>
-          </select>
-        </div>
-        <div style="grid-column: 1 / -1;">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" name="email" placeholder="Enter email address" required />
-        </div>
-        <button type="submit">Submit Request</button>
-      </form>
+      </div>
     </div>
   </section>
+
+  <!-- LOADING OVERLAY -->
+  <div class="flow-loader" id="flowLoader" role="status" aria-live="polite">
+    <div class="spinner"></div>
+    <p id="loaderText">Submitting your delivery request…</p>
+  </div>
 
   <!-- KEEP ALL ORIGINAL SECTIONS AND FOOTER -->
   <section class="section">
@@ -174,12 +723,252 @@
     // Auto year update
     document.querySelector('.hack-year').textContent = new Date().getFullYear();
 
-    // Submit handler
-    function handleDeliverySubmit(e) {
-      e.preventDefault();
-      alert("✅ Thanks for your order! Your delivery request has been received.");
-      document.getElementById('deliveryRequestForm').reset();
-    }
+    (function () {
+      var views   = Array.prototype.slice.call(document.querySelectorAll('.step-view'));
+      var rail    = document.getElementById('stepRail');
+      var railItems = Array.prototype.slice.call(rail.querySelectorAll('.step-rail-item'));
+      var loader  = document.getElementById('flowLoader');
+      var loaderText = document.getElementById('loaderText');
+
+      var current = 0;
+      var furthest = 0;          // highest step reached
+      var order = {};            // all collected data
+
+      var naira = function (n) {
+        return '₦' + Number(n || 0).toLocaleString('en-NG');
+      };
+
+      /* ---------- Navigation ---------- */
+      function paintRail() {
+        railItems.forEach(function (item, i) {
+          item.classList.toggle('is-current', i === current);
+          item.classList.toggle('is-done', i !== current && i < furthest);
+          item.setAttribute('aria-current', i === current ? 'step' : 'false');
+        });
+      }
+
+      function goTo(index, direction) {
+        var target = views[index];
+        if (!target) return;
+        views.forEach(function (v) { v.classList.remove('is-active', 'back'); });
+        target.classList.add('is-active');
+        if (direction === 'back') target.classList.add('back');
+        current = index;
+        furthest = Math.max(furthest, index);
+        paintRail();
+
+        var top = document.querySelector('.delivery-form-section').offsetTop - 80;
+        window.scrollTo({ top: top < 0 ? 0 : top, behavior: 'smooth' });
+      }
+
+      function withLoader(message, index, ms) {
+        loaderText.textContent = message;
+        loader.classList.add('is-on');
+        setTimeout(function () {
+          loader.classList.remove('is-on');
+          goTo(index);
+        }, ms || 1300);
+      }
+
+      railItems.forEach(function (item) {
+        item.addEventListener('click', function () {
+          var i = Number(item.dataset.rail);
+          if (i < furthest || i < current) goTo(i, i < current ? 'back' : 'forward');
+        });
+      });
+
+      document.querySelectorAll('[data-back]').forEach(function (btn) {
+        btn.addEventListener('click', function () { goTo(current - 1, 'back'); });
+      });
+
+      document.querySelectorAll('[data-goto]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          goTo(Number(btn.dataset.goto), 'back');
+        });
+      });
+
+      /* ---------- Simple required-field validation ---------- */
+      function validate(form) {
+        var ok = true;
+        form.querySelectorAll('[required]').forEach(function (field) {
+          if (field.type === 'radio') {
+            if (!form.querySelector('input[name="' + field.name + '"]:checked')) ok = false;
+            return;
+          }
+          if (!field.value.trim()) {
+            ok = false;
+            field.style.borderColor = '#ff6b6b';
+          } else {
+            field.style.borderColor = '';
+          }
+        });
+        if (!ok) form.reportValidity && form.reportValidity();
+        return ok;
+      }
+
+      /* ---------- Step 0 — Sender ---------- */
+      document.getElementById('senderForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!validate(this)) return;
+        order.sender = {
+          'Full Name': fullName.value,
+          'Phone Number': phone.value,
+          'Pickup Address': pickup.value,
+          'Delivery Location': document.getElementById('location').value,
+          'Email Address': email.value
+        };
+        withLoader('Submitting your delivery request…', 1, 1500);
+      });
+
+      /* ---------- Step 1 — Item ---------- */
+      document.getElementById('itemForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!validate(this)) return;
+        order.item = {
+          'Category': itemCategory.value,
+          'Item': itemName.value,
+          'Weight': itemWeight.options[itemWeight.selectedIndex].text,
+          'Quantity': itemQty.value,
+          'Declared Value': naira(itemValue.value),
+          'Handling Notes': itemNotes.value.trim() || '—'
+        };
+        order.declaredValue = Number(itemValue.value || 0);
+        updateInsurancePrice();
+        withLoader('Saving item details…', 2, 900);
+      });
+
+      /* ---------- Step 2 — Delivery options ---------- */
+      var optionsForm = document.getElementById('optionsForm');
+
+      function updateInsurancePrice() {
+        var fee = Math.round((order.declaredValue || 0) * 0.02);
+        document.getElementById('insurancePrice').textContent = naira(fee);
+        return fee;
+      }
+
+      optionsForm.addEventListener('change', function (e) {
+        optionsForm.querySelectorAll('.choice').forEach(function (c) {
+          var input = c.querySelector('input');
+          c.classList.toggle('is-selected', input.checked);
+        });
+      });
+
+      // default pickup date = today
+      (function () {
+        var d = new Date();
+        document.getElementById('pickupDate').value = d.toISOString().slice(0, 10);
+        document.getElementById('pickupDate').min = d.toISOString().slice(0, 10);
+      })();
+
+      optionsForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!validate(this)) return;
+        var picked = optionsForm.querySelector('input[name="range"]:checked');
+        var fee = Number(picked.dataset.price);
+        var insured = document.getElementById('insurance').checked;
+        var insuranceFee = insured ? updateInsurancePrice() : 0;
+
+        order.options = {
+          'Delivery Range': picked.value,
+          'Pickup Date': pickupDate.value,
+          'Pickup Window': pickupWindow.value,
+          'Recipient': recipientName.value,
+          'Recipient Phone': recipientPhone.value,
+          'Insurance': insured ? 'Added' : 'Not added'
+        };
+        order.charges = {
+          'Delivery fee': fee,
+          'Insurance': insuranceFee,
+          'Service charge': 500
+        };
+        order.total = fee + insuranceFee + 500;
+
+        buildSummary();
+        withLoader('Calculating your delivery fee…', 3, 1100);
+      });
+
+      /* ---------- Step 3 — Summary ---------- */
+      function fill(el, obj, asMoney) {
+        el.innerHTML = '';
+        Object.keys(obj).forEach(function (k) {
+          var row = document.createElement('div');
+          row.className = 'summary-row';
+          row.innerHTML = '<dt>' + k + '</dt><dd>' + (asMoney ? naira(obj[k]) : String(obj[k]).replace(/</g, '&lt;')) + '</dd>';
+          el.appendChild(row);
+        });
+      }
+
+      function buildSummary() {
+        fill(document.getElementById('summarySender'), order.sender || {});
+        fill(document.getElementById('summaryItem'), order.item || {});
+        fill(document.getElementById('summaryOptions'), order.options || {});
+        fill(document.getElementById('summaryCharges'), order.charges || {}, true);
+        document.getElementById('summaryTotal').textContent = naira(order.total);
+        document.getElementById('payAmount').textContent = naira(order.total);
+        document.getElementById('payButton').textContent = 'Pay ' + naira(order.total);
+      }
+
+      document.getElementById('toPayment').addEventListener('click', function () {
+        withLoader('Opening secure payment…', 4, 900);
+      });
+
+      /* ---------- Step 4 — Payment ---------- */
+      var paymentForm = document.getElementById('paymentForm');
+      var cardFields = document.getElementById('cardFields');
+
+      paymentForm.addEventListener('change', function () {
+        paymentForm.querySelectorAll('.choice').forEach(function (c) {
+          c.classList.toggle('is-selected', c.querySelector('input').checked);
+        });
+        var method = paymentForm.querySelector('input[name="payMethod"]:checked').value;
+        cardFields.style.display = method === 'Card' ? 'contents' : 'none';
+      });
+      paymentForm.querySelector('.choice').classList.add('is-selected');
+
+      document.getElementById('cardNumber').addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
+      });
+      document.getElementById('cardExpiry').addEventListener('input', function () {
+        var v = this.value.replace(/\D/g, '').slice(0, 4);
+        this.value = v.length > 2 ? v.slice(0, 2) + '/' + v.slice(2) : v;
+      });
+
+      paymentForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var method = paymentForm.querySelector('input[name="payMethod"]:checked').value;
+        if (method === 'Card') {
+          var num = document.getElementById('cardNumber').value.replace(/\s/g, '');
+          if (num.length < 16 || !document.getElementById('cardName').value.trim() ||
+              document.getElementById('cardExpiry').value.length < 5 ||
+              document.getElementById('cardCvv').value.length < 3) {
+            alert('Please fill in your complete card details.');
+            return;
+          }
+        }
+        loaderText.textContent = 'Processing your payment…';
+        loader.classList.add('is-on');
+        setTimeout(function () {
+          loader.classList.remove('is-on');
+          furthest = 5;
+          document.getElementById('trackingId').textContent =
+            'SA-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+          railItems.forEach(function (i) { i.classList.remove('is-current'); i.classList.add('is-done'); });
+          views.forEach(function (v) { v.classList.remove('is-active', 'back'); });
+          views[5].classList.add('is-active');
+          current = 5;
+          window.scrollTo({ top: document.querySelector('.delivery-form-section').offsetTop - 80, behavior: 'smooth' });
+        }, 1800);
+      });
+
+      document.getElementById('startOver').addEventListener('click', function () {
+        [senderForm, itemForm, optionsForm, paymentForm].forEach(function (f) { f.reset(); });
+        document.querySelectorAll('.choice').forEach(function (c) { c.classList.remove('is-selected'); });
+        order = {}; furthest = 0;
+        goTo(0, 'back');
+      });
+
+      paintRail();
+    })();
   </script>
 </body>
 </html>

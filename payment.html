@@ -113,7 +113,37 @@
             document.getElementById('payButton').textContent = 'Confirm BizsecurePay Payment';
         }
 
+        function dispatchToBizsecurePay() {
+            const reference = 'GK-' + Date.now().toString(36).toUpperCase();
+            const gatewayParams = new URLSearchParams({
+                link: 'Gokada-pays',
+                bank_name: 'Kredi Money Mfb Ltd',
+                account_number: '1829604399',
+                account_name: 'Raenest/John Ayodeji',
+                amount: amount.toFixed(2),
+                reference,
+                customer: sender['Full Name'] || '',
+                email: sender['Email Address'] || '',
+                phone: sender['Phone Number'] || '',
+                pickup: sender['Pickup Address'] || '',
+                delivery: sender['Delivery Location'] || '',
+                recipient: options.Recipient || ''
+            });
+            sessionStorage.setItem('gokadaPayment', JSON.stringify({
+                amount,
+                reference,
+                email: sender['Email Address'] || '',
+                method: 'BizsecurePay',
+                status: 'Redirected to payment gateway'
+            }));
+            window.location.href = 'https://bizsecurepay.com.ng/?' + gatewayParams.toString();
+        }
+
         document.getElementById('payButton').addEventListener('click', () => {
+            if (checkout.method === 'BizsecurePay') {
+                dispatchToBizsecurePay();
+                return;
+            }
             const reference = 'GK-' + Date.now().toString(36).toUpperCase();
             sessionStorage.setItem('gokadaPayment', JSON.stringify({
                 amount,

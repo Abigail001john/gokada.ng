@@ -12,8 +12,8 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        background: '#04020d',
-                        cardBg: '#0b071e',
+                        background: '#17181a',
+                        cardBg: '#202327',
                         accentGold: '#0c63e7',
                         mutedText: '#8e9bb3'
                     }
@@ -76,6 +76,13 @@
                 </label>
             </div>
 
+            <div class="mt-5 grid gap-2 rounded-xl border border-white/10 bg-black/20 p-4 text-xs">
+                <div class="flex justify-between gap-4"><span class="text-mutedText">Item</span><span id="itemValue" class="text-right">Not provided</span></div>
+                <div class="flex justify-between gap-4"><span class="text-mutedText">Pickup date</span><span id="pickupDateValue" class="text-right">Not provided</span></div>
+                <div class="flex justify-between gap-4"><span class="text-mutedText">Recipient phone</span><span id="recipientPhoneValue" class="text-right">Not provided</span></div>
+                <div class="flex justify-between gap-4"><span class="text-mutedText">Email receipt</span><span id="emailValue" class="text-right">Not provided</span></div>
+            </div>
+
             <button id="payButton" type="button" class="mt-6 w-full rounded-xl bg-gradient-gold py-3.5 text-xs font-black uppercase tracking-wider text-black shadow-lg transition-transform hover:scale-[1.01]">
                 Confirm Payment
             </button>
@@ -88,6 +95,7 @@
         const checkout = JSON.parse(sessionStorage.getItem('gokadaCheckout') || '{}');
         const order = checkout.order || {};
         const sender = order.sender || {};
+        const item = order.item || {};
         const options = order.options || {};
         const amount = Number(order.total || 0);
         const formatNaira = (value) => 'N' + Number(value || 0).toLocaleString('en-NG');
@@ -95,17 +103,26 @@
         document.getElementById('pickupValue').textContent = sender['Pickup Address'] || 'Not provided';
         document.getElementById('locationValue').textContent = sender['Delivery Location'] || 'Not provided';
         document.getElementById('recipientValue').textContent = options.Recipient || 'Not provided';
+        document.getElementById('itemValue').textContent = item.Item || 'Not provided';
+        document.getElementById('pickupDateValue').textContent = options['Pickup Date'] || 'Not provided';
+        document.getElementById('recipientPhoneValue').textContent = options['Recipient Phone'] || 'Not provided';
+        document.getElementById('emailValue').textContent = sender['Email Address'] || 'Not provided';
         document.getElementById('totalLabel').textContent = formatNaira(amount);
         document.getElementById('paymentStatus').textContent = 'Payment method: ' + (checkout.method || 'Card') + '. Your delivery details are synced from Gokada SuperApp.';
+        if (checkout.method === 'BizsecurePay') {
+            document.getElementById('payButton').textContent = 'Confirm BizsecurePay Payment';
+        }
 
         document.getElementById('payButton').addEventListener('click', () => {
             const reference = 'GK-' + Date.now().toString(36).toUpperCase();
             sessionStorage.setItem('gokadaPayment', JSON.stringify({
                 amount,
                 reference,
-                email: sender['Email Address'] || ''
+                email: sender['Email Address'] || '',
+                method: checkout.method || 'Card',
+                status: 'Payment request received'
             }));
-            document.getElementById('paymentStatus').textContent = 'Payment confirmed. Reference: ' + reference;
+            document.getElementById('paymentStatus').textContent = (checkout.method || 'Card') + ' payment request received. Reference: ' + reference;
             document.getElementById('payButton').textContent = 'Payment Confirmed';
             document.getElementById('payButton').disabled = true;
         });
